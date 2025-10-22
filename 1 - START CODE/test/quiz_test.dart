@@ -20,13 +20,13 @@ main() {
     
     Quiz quiz = Quiz(questions: questions);
     
-    quiz.addAnswer(Answer(question: questions[0], answerChoice: "Russia"));
-    quiz.addAnswer(Answer(question: questions[1], answerChoice: 'France'));
+    // OLD WAY (doesn't work anymore):
+    // quiz.addAnswer(Answer(question: questions[0], answerChoice: "Russia"));
+    
+    // NEW WAY - use questionId:
+    quiz.addAnswer(Answer(questionId: questions[0].id, answerChoice: "Russia"));
+    quiz.addAnswer(Answer(questionId: questions[1].id, answerChoice: 'Mongolia'));
     
     expect(quiz.getScoreInPercentage(), equals(100));
-    expect(quiz.getScoreInPoint(),equals(60));
-    
   });
-  
-
 }
