@@ -7,7 +7,6 @@ void main() {
   QuizRepository repository = QuizRepository('lib/data/quiz.json');
   Quiz quiz = repository.readQuiz();
   
- 
   QuizConsole console = QuizConsole(quiz: quiz);
   console.startQuiz();
 }
