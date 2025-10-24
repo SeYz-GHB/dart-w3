@@ -1,16 +1,21 @@
 {
+  "id": "quiz-1",
   "questions": [
     {
-      "title": "3 + 3 = ? -",
+      "id": "q1",
+      "title": "3 + 3 = ?",
       "choices": ["2", "3", "6"],
       "goodChoice": "6",
       "points": 50
     },
     {
-      "title": "2 + 2 = ? -",
+      "id": "q2",
+      "title": "2 + 2 = ?",
       "choices": ["2", "4", "5"],
       "goodChoice": "4",
       "points": 50
     }
-  ]
+  ],
+  "answers": [],
+  "players": []
 }

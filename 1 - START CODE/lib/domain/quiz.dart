@@ -1,17 +1,31 @@
-// lib/domain/quiz.dart
 import 'package:uuid/uuid.dart';
 
 var uuid = Uuid();
 
 class Player {
+  late String id;
   String name;
   int score;
-  
-  Player({required this.name, this.score = 0});
+
+  Player({required this.name, this.score = 0, String? id}) {
+    this.id = id ?? uuid.v4();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'score': score};
+  }
+
+  factory Player.fromJson(Map<String, dynamic> json) {
+    return Player(
+      id: json['id'],
+      name: json['name'],
+      score: json['score'],
+    );
+  }
 }
 
 class Question {
-  late String id;  
+  late String id;
   String title;
   List<String> choices;
   String goodChoice;
@@ -22,8 +36,29 @@ class Question {
     required this.choices,
     required this.goodChoice,
     required this.point,
+    String? id,
   }) {
-    id = uuid.v4(); // Generate unique ID automatically
+    this.id = id ?? uuid.v4();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'choices': choices,
+      'goodChoice': goodChoice,
+      'points': point,
+    };
+  }
+
+  factory Question.fromJson(Map<String, dynamic> json) {
+    return Question(
+      id: json['id'],
+      title: json['title'],
+      choices: List<String>.from(json['choices']),
+      goodChoice: json['goodChoice'],
+      point: json['points'],
+    );
   }
 }
 
@@ -34,63 +69,89 @@ class Answer {
   Answer({required this.questionId, required this.answerChoice});
 
   bool isGood(Quiz quiz) {
-   
-    for (var question in quiz.questions) {
-      if (question.id == questionId) {
-        return answerChoice == question.goodChoice;
-      }
-    }
-    return false;
+    final question = quiz.getQuestionById(questionId);
+    return question != null && answerChoice == question.goodChoice;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'questionId': questionId, 'answerChoice': answerChoice};
+  }
+
+  factory Answer.fromJson(Map<String, dynamic> json) {
+    return Answer(
+      questionId: json['questionId'],
+      answerChoice: json['answerChoice'],
+    );
   }
 }
 
 class Quiz {
-  late String id;  
+  late String id;
   List<Question> questions;
-  List<Answer> answers = [];
-  List<Player> players = [];
-  int totalSCore = 0;
-  int fullPoint = 100;
+  List<Answer> answers;
+  List<Player> players;
+  int totalScore = 0;
+  int fullPoint = 0;
 
-  Quiz({required this.questions}) {
-    id = uuid.v4(); 
-    
-
-    fullPoint = 0;
-    for (var question in questions) {
-      fullPoint = fullPoint + question.point;
+  Quiz({
+    required this.questions,
+    this.answers = const [],
+    this.players = const [],
+    String? id,
+  }) {
+    this.id = id ?? uuid.v4();
+    for (var q in questions) {
+      fullPoint += q.point;
     }
   }
 
-  void addAnswer(Answer answer) {
-    answers.add(answer);
-  }
-
-  void addPlayer(Player player) {
-    players.add(player);
-  }
+  void addAnswer(Answer answer) => answers.add(answer);
+  void addPlayer(Player player) => players.add(player);
 
   Question? getQuestionById(String questionId) {
-    for (var question in questions) {
-      if (question.id == questionId) {
-        return question;
-      }
-    }
-    return null;
+    return questions.firstWhere(
+      (q) => q.id == questionId,
+      orElse: () => Question(
+          title: '', choices: [], goodChoice: '', point: 0, id: questionId),
+    );
   }
 
   int getScoreInPercentage() {
-    totalSCore = 0;
-    
+    totalScore = 0;
     for (var ans in answers) {
       if (ans.isGood(this)) {
-        Question? q = getQuestionById(ans.questionId);
-        if (q != null) {
-          totalSCore += q.point;
-        }
+        var q = getQuestionById(ans.questionId);
+        if (q != null) totalScore += q.point;
       }
     }
-    
-    return ((totalSCore / fullPoint) * 100).toInt();
+    return ((totalScore / fullPoint) * 100).toInt();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'questions': questions.map((q) => q.toJson()).toList(),
+      'answers': answers.map((a) => a.toJson()).toList(),
+      'players': players.map((p) => p.toJson()).toList(),
+    };
+  }
+
+  factory Quiz.fromJson(Map<String, dynamic> json) {
+    return Quiz(
+      id: json['id'],
+      questions: (json['questions'] as List)
+          .map((q) => Question.fromJson(q))
+          .toList(),
+      answers: (json['answers'] != null)
+          ? (json['answers'] as List)
+              .map((a) => Answer.fromJson(a))
+              .toList()
+          : [],
+      players: (json['players'] != null)
+          ? (json['players'] as List)
+              .map((p) => Player.fromJson(p))
+              .toList()
+          : [],
+    );
   }
 }

@@ -1,4 +1,3 @@
-// lib/view/quiz_console.dart
 import 'dart:io';
 import '../domain/quiz.dart';
 
@@ -23,7 +22,7 @@ class QuizConsole {
       quiz.addPlayer(player);
       
       quiz.answers.clear();
-      quiz.totalSCore = 0;
+      quiz.totalScore = 0;  
       
       for (var question in quiz.questions) {
         print('Question: ${question.title} ( ${question.point} points)');
@@ -32,7 +31,6 @@ class QuizConsole {
         String? userInput = stdin.readLineSync();
         
         if (userInput != null && userInput.isNotEmpty) {
-          // Use question ID instead of the whole question object
           Answer answer = Answer(
             questionId: question.id, 
             answerChoice: userInput
@@ -42,7 +40,7 @@ class QuizConsole {
       }
       
       int scorePercent = quiz.getScoreInPercentage();
-      player.score = quiz.totalSCore;
+      player.score = quiz.totalScore; 
       
       print('${player.name}, your score in percentage: ${scorePercent} %');
       print('${player.name}, your score in points: ${player.score} %');
